@@ -1,0 +1,43 @@
+╔══════════════════════════════════════════════════════════════╗
+║           SUMIX - KURULUM KILAVUZU                    ║
+╚══════════════════════════════════════════════════════════════╝
+
+■ 1) PYTHON KUR (bir kere)
+   python.org adresinden Python'u indir.
+   Kurulumda "Add Python to PATH" kutusunu MUTLAKA işaretle.
+
+■ 2) GEREKEN KÜTÜPHANEYİ KUR (bir kere)
+   VS Code terminaline yaz:
+       pip install pywebview
+
+■ 3) ÇALIŞTIR
+   Sumix klasörünün içinde:
+       python main.py
+
+■ 4) SATILABİLİR .EXE YAPMAK
+   pip install pyinstaller
+   Sonra Sumix klasörünün içinde (Windows):
+       pyinstaller --onefile --noconsole --add-data "web;web" --name SumixPRO main.py
+   Oluşan dist\SumixPRO.exe dosyasını istediğin bilgisayara at.
+   O bilgisayarda Python'a bile gerek yok.
+   (Windows 10/11'de hazır gelen Edge WebView2 kullanılır.)
+
+■ ÖNEMLİ KLASÖRLER
+   Masaüstü\SumixDosyalari          → kayıtlı dosyaların (.sumix)
+   Masaüstü\SumixDosyalari\Yedekler → her kayıtta otomatik yedek (son 100)
+   Excel'e aktarılan dosyalar da SumixDosyalari içine düşer.
+
+■ LİSANS
+   Tablo motoru: x-spreadsheet (MIT lisansı) → ticari satışa uygundur.
+
+■ MİNİ KULLANIM (müşteriye anlatırken)
+   • Hücreye çift tıkla → yaz → Enter
+   • 1 yaz → hücrenin sağ alt köşesindeki noktayı tut → aşağı sürükle → 1,2,3...
+   • Sayıları seç → üstten TOPLA (sonuç alta yazılır; alttaki çubukta zaten canlı görünür)
+   • Renk/yazı tipi/boyut/kalın → üstteki araç çubuğu
+   • Sırala/filtrele → sütunu seç → huni simgesi
+   • Alttaki sekmeler = kategori sayfaları (+ ile yeni)
+   • Ctrl+tık = dağınık hücre seçimi (uzak hücreleri topla!)
+   • 01.05.2026 yaz, aşağı sürükle = tarihler otomatik artar
+   • ₺ PARA butonu = 1.500,25 ₺ para görünümü
+   • Ctrl+S kaydet → otomatik yedek. Elektrik kesilirse açılışta kurtarma sorar.
