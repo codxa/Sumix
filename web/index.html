@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Sumix</title>
+<link rel="stylesheet" href="xspreadsheet.css">
+<style>
+  :root { --yesil:#1a3d2b; --acik:#2e7d32; }
+  * { box-sizing: border-box; }
+  html,body { margin:0; padding:0; height:100%; overflow:hidden;
+              font-family:"Segoe UI",Arial,sans-serif; }
+
+  /* ÜST BAR */
+  #ustbar { background:var(--yesil); color:#fff; display:flex; align-items:center;
+            gap:6px; padding:7px 10px; flex-wrap:wrap; }
+  #logo { font-size:17px; font-weight:800; letter-spacing:.5px; margin-right:8px; }
+  #logo span { color:#a5d6a7; }
+  .grup { display:flex; gap:5px; align-items:center; padding:0 8px;
+          border-left:1px solid rgba(255,255,255,.18); }
+  .btn { border:0; border-radius:6px; color:#fff; font-weight:700; font-size:12.5px;
+         padding:7px 11px; cursor:pointer; transition:filter .12s; }
+  .btn:hover { filter:brightness(1.18); }
+  .b-yesil{background:#2e7d32} .b-teal{background:#00695c} .b-mor{background:#6a1b9a}
+  .b-mavi{background:#1565c0} .b-gri{background:#455a64} .b-turuncu{background:#e65100}
+  #arakutu { border:0; border-radius:6px; padding:7px 10px; font-size:13px; width:170px; }
+
+  /* TABLO ALANI */
+  #sheet { height:calc(100% - 92px); }
+
+  /* ALT DURUM ÇUBUĞU */
+  #altbar { background:#263238; color:#fff; height:42px; display:flex;
+            align-items:center; justify-content:space-between; padding:0 14px;
+            font-size:13.5px; font-weight:700; }
+  #dosyadurum { color:#90a4ae; font-weight:400; font-size:12px; }
+
+  /* ARAMA SONUÇ PANELİ */
+  #sonucpanel { position:absolute; top:52px; right:10px; width:330px; max-height:320px;
+                overflow:auto; background:#fff; border:1px solid #bbb; border-radius:8px;
+                box-shadow:0 6px 18px rgba(0,0,0,.25); display:none; z-index:9999; }
+  #sonucpanel .baslik { background:var(--yesil); color:#fff; padding:8px 12px;
+                        font-weight:700; font-size:13px; display:flex;
+                        justify-content:space-between; }
+  #sonucpanel .kapat { cursor:pointer; }
+  .sonuc { padding:8px 12px; border-bottom:1px solid #eee; cursor:pointer; font-size:13px; }
+  .sonuc:hover { background:#e8f5e9; }
+  .sonuc b { color:var(--acik); }
+
+  /* BİLDİRİM (TOAST) */
+  #toast { position:absolute; bottom:56px; left:50%; transform:translateX(-50%);
+           background:var(--yesil); color:#fff; padding:12px 22px; border-radius:8px;
+           font-weight:700; font-size:14px; box-shadow:0 4px 14px rgba(0,0,0,.35);
+           display:none; z-index:9999; }
+
+  /* RENK PALETİ */
+  #palet { position:absolute; top:40px; left:0; background:#fff; border:1px solid #bbb;
+           border-radius:8px; padding:10px; box-shadow:0 6px 18px rgba(0,0,0,.25);
+           display:none; z-index:9999; width:210px; }
+  .palet-baslik { font-size:12px; font-weight:700; color:#333; margin-bottom:8px; }
+  .renkler { display:flex; gap:8px; }
+  .renk { width:26px; height:26px; border-radius:6px; cursor:pointer;
+          border:2px solid #fff; box-shadow:0 0 0 1px #ccc; }
+  .renk:hover { transform:scale(1.15); }
+
+  /* AYARLAR PANELİ */
+  #ayarpanel { position:absolute; top:52px; right:10px; width:320px; background:#fff;
+               border:1px solid #bbb; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,.25);
+               display:none; z-index:9999; color:#222; }
+  #ayarpanel .baslik { background:var(--yesil); color:#fff; padding:8px 12px;
+                       font-weight:700; font-size:13px; display:flex;
+                       justify-content:space-between; }
+  #ayarpanel .icerik { padding:12px; font-size:13px; }
+  #ayarpanel label { display:block; padding:7px 4px; cursor:pointer; border-radius:6px; }
+  #ayarpanel label:hover { background:#e8f5e9; }
+
+  /* İŞLEM MENÜSÜ */
+  #islemmenu, #sablonmenu { position:absolute; top:40px; left:0; background:#fff;
+               border:1px solid #bbb;
+               border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,.25); display:none;
+               z-index:9999; width:200px; overflow:hidden; }
+  .islem { padding:11px 16px; font-size:14px; font-weight:700; color:#1a3d2b;
+           cursor:pointer; border-bottom:1px solid #eee; }
+  .islem:hover { background:#e8f5e9; }
+  .islem:last-child { border-bottom:0; }
+
+  /* SÜRÜKLE-DOLDUR TUTAMACINI BÜYÜT (sağ alt köşedeki nokta) */
+  .x-spreadsheet-selector .x-spreadsheet-selector-corner {
+    width: 10px !important;
+    height: 10px !important;
+    background: #2e7d32 !important;
+    border: 2px solid #fff !important;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div id="ustbar">
+  <div id="logo">Σ SUMIX</div>
+
+  <div class="grup" style="position:relative">
+    <button class="btn b-yesil" onclick="islemAcKapa()">🧮 İŞLEM ▾</button>
+    <div id="islemmenu">
+      <div class="islem" onclick="hesapla('topla')">Σ &nbsp;TOPLA</div>
+      <div class="islem" onclick="hesapla('cikar')">➖ ÇIKAR</div>
+      <div class="islem" onclick="hesapla('carp')">✖ ÇARP</div>
+      <div class="islem" onclick="hesapla('bol')">➗ BÖL</div>
+      <div class="islem" onclick="hesapla('ortalama')">x̄ &nbsp;ORTALAMA</div>
+      <div class="islem" onclick="hesapla('enbuyuk')">🔼 EN BÜYÜK</div>
+      <div class="islem" onclick="hesapla('enkucuk')">🔽 EN KÜÇÜK</div>
+    </div>
+  </div>
+
+  <div class="grup" style="position:relative">
+    <button class="btn b-turuncu" onclick="sablonAcKapa()">🧾 ŞABLON ▾</button>
+    <div id="sablonmenu">
+      <div class="islem" onclick="sablonYaz('satis')">🌱 Satış Defteri</div>
+      <div class="islem" onclick="sablonYaz('borc')">📒 Borç-Alacak Defteri</div>
+      <div class="islem" onclick="sablonYaz('gider')">💸 Gider Defteri</div>
+    </div>
+    <button class="btn b-gri" onclick="tarihEkle()">📅 TARİH</button>
+    <button class="btn b-teal" onclick="paraBicimle()">₺ PARA</button>
+  </div>
+
+  <div class="grup" style="position:relative">
+    <button class="btn b-yesil" onclick="paletAcKapa()">🎨 TABLO YAP</button>
+    <div id="palet">
+      <div class="palet-baslik">Tablo başlık rengini seç:</div>
+      <div class="renkler">
+        <span class="renk" style="background:#2e7d32" onclick="tabloYap('#2e7d32')"></span>
+        <span class="renk" style="background:#1565c0" onclick="tabloYap('#1565c0')"></span>
+        <span class="renk" style="background:#c62828" onclick="tabloYap('#c62828')"></span>
+        <span class="renk" style="background:#e65100" onclick="tabloYap('#e65100')"></span>
+        <span class="renk" style="background:#6a1b9a" onclick="tabloYap('#6a1b9a')"></span>
+        <span class="renk" style="background:#37474f" onclick="tabloYap('#37474f')"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grup">
+    <input id="arakutu" placeholder="🔍 Ara: isim, sayı..."
+           onkeydown="if(event.key==='Enter')ara()">
+    <button class="btn b-gri" onclick="ara()">ARA</button>
+  </div>
+
+  <div class="grup">
+    <button class="btn b-mavi" onclick="kaydet()">💾 KAYDET</button>
+    <button class="btn b-gri"  onclick="dosyaAc()">📂 AÇ</button>
+    <button class="btn b-teal" onclick="csvAktar()">📊 EXCEL'E AKTAR</button>
+    <button class="btn b-gri"  onclick="ayarAcKapa()">⚙</button>
+    <button class="btn b-gri"  onclick="yardim()">❓</button>
+  </div>
+</div>
+
+<div id="sheet"></div>
+
+<div id="altbar">
+  <div id="istatistik">Hazır — hücreleri fareyle seçin, toplam burada anında görünür.</div>
+  <div id="dosyadurum">Yeni dosya</div>
+</div>
+
+<div id="sonucpanel">
+  <div class="baslik"><span id="sonucbaslik">Arama Sonuçları</span>
+       <span class="kapat" onclick="panelKapat()">✖</span></div>
+  <div id="sonuclar"></div>
+</div>
+
+<div id="ayarpanel">
+  <div class="baslik"><span>⚙ Ayarlar</span>
+       <span class="kapat" style="cursor:pointer" onclick="ayarAcKapa()">✖</span></div>
+  <div class="icerik">
+    <b>Hesap sonucu nereye yazılsın?</b>
+    <label><input type="radio" name="sonucmodu" value="sec" checked
+           onchange="sonucModu='sec'"> 🎯 Tıkladığım hücreye yazılsın (önerilen)</label>
+    <label><input type="radio" name="sonucmodu" value="alt"
+           onchange="sonucModu='alt'"> ⬇ Seçimin hemen altına otomatik yazılsın</label>
+    <hr>
+    <b>Tarih sürüklenince nasıl artsın?</b>
+    <label><input type="radio" name="tarihmodu" value="her" checked
+           onchange="tarihModu='her'"> 📅 Her gün (1, 2, 3... gün)</label>
+    <label><input type="radio" name="tarihmodu" value="is"
+           onchange="tarihModu='is'"> 💼 Sadece iş günleri (Cumartesi-Pazar atlanır)</label>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="xspreadsheet.js"></script>
+<script src="tr.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
