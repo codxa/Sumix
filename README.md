@@ -37,7 +37,7 @@ her kayıtta otomatik yedek alır.
 ## 🚀 Kurulum
 
 ```bash
-git clone https://github.com/codxa/sumix.git
+git clone https://github.com/codxa/Sumix.git
 cd sumix
 pip install -r requirements.txt
 python main.py
